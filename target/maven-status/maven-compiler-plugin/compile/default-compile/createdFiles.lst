@@ -1,1 +1,5 @@
+br/com/nfe/manager/model/ItemNFe.class
+br/com/nfe/manager/model/NFe.class
+br/com/nfe/manager/model/Empresa.class
+br/com/nfe/manager/model/Produto.class
 br/com/nfe/manager/Main.class
