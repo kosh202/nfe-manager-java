@@ -6,6 +6,7 @@ import br.com.nfe.manager.model.ItemNFe;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
+import java.util.List;
 import org.w3c.dom.Document;
 
 public class Main {
@@ -26,14 +27,16 @@ public class Main {
 
         int quantidadeItens = parser.contarItens(documento);
 
-        ItemNFe item = parser.extrairPrimeiroItem(documento);
+        List<ItemNFe> itens = parser.extrairItens(documento);
 
-        System.out.println("Código: " + item.getProduto().getCodigo());
-        System.out.println("Nome: " + item.getProduto().getNome());
-        System.out.println("Quantidade: " + item.getQuantidade());
-        System.out.println("Preço unitário: " + item.getPrecoUnitario());
-        System.out.println("Valor total: " + item.getValorTotal());
+        for (ItemNFe item : itens) {
 
+            System.out.println("Código: " + item.getProduto().getCodigo());
+            System.out.println("Nome: " + item.getProduto().getNome());
+            System.out.println("Quantidade: " + item.getQuantidade());
+            System.out.println("Preço unitário: " + item.getPrecoUnitario());
+            System.out.println("Valor total: " + item.getValorTotal());
+        }
         System.out.println("Chave de acesso: " + chave);
         System.out.println("Número da NF-e: " + numero);
         System.out.println("CNPJ: " + cnpj);

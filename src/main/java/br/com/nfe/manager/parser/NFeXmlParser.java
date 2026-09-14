@@ -10,6 +10,8 @@ import br.com.nfe.manager.model.Produto;
 import java.io.File;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -97,53 +99,62 @@ public class NFeXmlParser {
                 .getLength();
     }
 
-    public ItemNFe extrairPrimeiroItem(Document documento) {
+    public List<ItemNFe> extrairItens(Document documento) {
 
         NodeList itens = documento.getElementsByTagName("det");
 
-        Element primeiroItem = (Element) itens.item(0);
+        List<ItemNFe> listaItens = new ArrayList<>();
 
-        Element produtoElement = (Element) primeiroItem
-                .getElementsByTagName("prod")
-                .item(0);
+        for (int i = 0; i < itens.getLength(); i++) {
 
-        Element codigo = (Element) produtoElement
-                .getElementsByTagName("cProd")
-                .item(0);
+            Element item = (Element) itens.item(i);
 
-        Element nome = (Element) produtoElement
-                .getElementsByTagName("xProd")
-                .item(0);
+            Element produtoElement = (Element) item
+                    .getElementsByTagName("prod")
+                    .item(0);
 
-        Element quantidade = (Element) produtoElement
-                .getElementsByTagName("qCom")
-                .item(0);
+            Element codigo = (Element) produtoElement
+                    .getElementsByTagName("cProd")
+                    .item(0);
 
-        Element precoUnitario = (Element) produtoElement
-                .getElementsByTagName("vUnCom")
-                .item(0);
+            Element nome = (Element) produtoElement
+                    .getElementsByTagName("xProd")
+                    .item(0);
 
-        Element valorTotal = (Element) produtoElement
-                .getElementsByTagName("vProd")
-                .item(0);
+            Element quantidade = (Element) produtoElement
+                    .getElementsByTagName("qCom")
+                    .item(0);
 
-        Produto produto = new Produto(
-                codigo.getTextContent(),
-                nome.getTextContent());
+            Element precoUnitario = (Element) produtoElement
+                    .getElementsByTagName("vUnCom")
+                    .item(0);
 
-        BigDecimal quantidadeValor = new BigDecimal(
-                quantidade.getTextContent());
+            Element valorTotal = (Element) produtoElement
+                    .getElementsByTagName("vProd")
+                    .item(0);
 
-        BigDecimal precoUnitarioValor = new BigDecimal(
-                precoUnitario.getTextContent());
+            Produto produto = new Produto(
+                    codigo.getTextContent(),
+                    nome.getTextContent());
 
-        BigDecimal valorTotalValor = new BigDecimal(
-                valorTotal.getTextContent());
+            BigDecimal quantidadeValor = new BigDecimal(
+                    quantidade.getTextContent());
 
-        return new ItemNFe(
-                produto,
-                quantidadeValor,
-                precoUnitarioValor,
-                valorTotalValor);
+            BigDecimal precoUnitarioValor = new BigDecimal(
+                    precoUnitario.getTextContent());
+
+            BigDecimal valorTotalValor = new BigDecimal(
+                    valorTotal.getTextContent());
+
+            ItemNFe itemNFe = new ItemNFe(
+                    produto,
+                    quantidadeValor,
+                    precoUnitarioValor,
+                    valorTotalValor);
+
+            listaItens.add(itemNFe);
+        }
+
+        return listaItens;
     }
 }
