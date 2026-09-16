@@ -4,13 +4,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import br.com.nfe.manager.exception.XmlParsingException;
 import br.com.nfe.manager.model.Empresa;
 import br.com.nfe.manager.model.ItemNFe;
 import br.com.nfe.manager.model.NFe;
 import br.com.nfe.manager.model.Produto;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.ArrayList;
@@ -20,156 +24,193 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 public class NFeXmlParser {
 
-    public Document carregarXml(String caminho) throws Exception {
-
-        File arquivo = new File(caminho);
-
+    private DocumentBuilderFactory criarDocumentBuilderFactorySegura() throws Exception {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
+        factory.setNamespaceAware(true);
 
-        return builder.parse(arquivo);
+        // Mitigação de vulnerabilidades XXE (XML External Entity)
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        factory.setXIncludeAware(false);
+        factory.setExpandEntityReferences(false);
+
+        return factory;
+    }
+
+    public Document carregarXml(String caminho) {
+        return carregarXml(new File(caminho));
+    }
+
+    public Document carregarXml(File arquivo) {
+        try {
+            DocumentBuilderFactory factory = criarDocumentBuilderFactorySegura();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            return builder.parse(arquivo);
+        } catch (Exception e) {
+            throw new XmlParsingException("Erro ao carregar arquivo XML: " + e.getMessage(), e);
+        }
+    }
+
+    public Document carregarXml(InputStream inputStream) {
+        try {
+            DocumentBuilderFactory factory = criarDocumentBuilderFactorySegura();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            return builder.parse(inputStream);
+        } catch (Exception e) {
+            throw new XmlParsingException("Erro ao processar stream XML: " + e.getMessage(), e);
+        }
+    }
+
+    public Document carregarXmlFromString(String xmlContent) {
+        if (xmlContent == null || xmlContent.trim().isEmpty()) {
+            throw new XmlParsingException("Conteúdo XML não pode ser nulo ou vazio.");
+        }
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8));
+        return carregarXml(inputStream);
     }
 
     public String extrairChaveAcesso(Document documento) {
-
-        Element infNFe = (Element) documento
-                .getElementsByTagName("infNFe")
-                .item(0);
-
-        String id = infNFe.getAttribute("Id");
-
-        return id.substring(3);
+        try {
+            NodeList infNFeList = documento.getElementsByTagName("infNFe");
+            if (infNFeList.getLength() == 0) {
+                throw new XmlParsingException("Elemento 'infNFe' não encontrado no XML.");
+            }
+            Element infNFe = (Element) infNFeList.item(0);
+            String id = infNFe.getAttribute("Id");
+            if (id == null || id.isEmpty()) {
+                throw new XmlParsingException("Atributo 'Id' da tag 'infNFe' ausente.");
+            }
+            return id.startsWith("NFe") ? id.substring(3) : id;
+        } catch (XmlParsingException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new XmlParsingException("Erro ao extrair chave de acesso: " + e.getMessage(), e);
+        }
     }
 
     public String extrairNumero(Document documento) {
-
-        Element nNF = (Element) documento
-                .getElementsByTagName("nNF")
-                .item(0);
-
-        return nNF.getTextContent();
+        try {
+            NodeList nNFList = documento.getElementsByTagName("nNF");
+            if (nNFList.getLength() == 0) {
+                throw new XmlParsingException("Elemento 'nNF' (número da nota) não encontrado.");
+            }
+            return nNFList.item(0).getTextContent();
+        } catch (XmlParsingException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new XmlParsingException("Erro ao extrair número da NF-e: " + e.getMessage(), e);
+        }
     }
 
     public String extrairCnpj(Document documento) {
-
-        Element emit = (Element) documento
-                .getElementsByTagName("emit")
-                .item(0);
-
-        Element cnpj = (Element) emit
-                .getElementsByTagName("CNPJ")
-                .item(0);
-
-        return cnpj.getTextContent();
+        try {
+            NodeList emitList = documento.getElementsByTagName("emit");
+            if (emitList.getLength() == 0) {
+                throw new XmlParsingException("Elemento 'emit' (emitente) não encontrado.");
+            }
+            Element emit = (Element) emitList.item(0);
+            NodeList cnpjList = emit.getElementsByTagName("CNPJ");
+            if (cnpjList.getLength() == 0) {
+                throw new XmlParsingException("Elemento 'CNPJ' do emitente não encontrado.");
+            }
+            return cnpjList.item(0).getTextContent();
+        } catch (XmlParsingException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new XmlParsingException("Erro ao extrair CNPJ da empresa emitente: " + e.getMessage(), e);
+        }
     }
 
     public String extrairNomeEmpresa(Document documento) {
-
-        Element emit = (Element) documento
-                .getElementsByTagName("emit")
-                .item(0);
-
-        Element xNome = (Element) emit
-                .getElementsByTagName("xNome")
-                .item(0);
-
-        return xNome.getTextContent();
+        try {
+            NodeList emitList = documento.getElementsByTagName("emit");
+            if (emitList.getLength() == 0) {
+                throw new XmlParsingException("Elemento 'emit' (emitente) não encontrado.");
+            }
+            Element emit = (Element) emitList.item(0);
+            NodeList xNomeList = emit.getElementsByTagName("xNome");
+            if (xNomeList.getLength() == 0) {
+                throw new XmlParsingException("Elemento 'xNome' do emitente não encontrado.");
+            }
+            return xNomeList.item(0).getTextContent();
+        } catch (XmlParsingException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new XmlParsingException("Erro ao extrair nome da empresa emitente: " + e.getMessage(), e);
+        }
     }
 
     public OffsetDateTime extrairData(Document documento) {
-
-        Element dhEmi = (Element) documento
-                .getElementsByTagName("dhEmi")
-                .item(0);
-
-        return OffsetDateTime.parse(dhEmi.getTextContent());
+        try {
+            NodeList dhEmiList = documento.getElementsByTagName("dhEmi");
+            if (dhEmiList.getLength() == 0) {
+                throw new XmlParsingException("Elemento 'dhEmi' (data de emissão) não encontrado.");
+            }
+            return OffsetDateTime.parse(dhEmiList.item(0).getTextContent());
+        } catch (XmlParsingException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new XmlParsingException("Erro ao extrair data de emissão: " + e.getMessage(), e);
+        }
     }
 
     public BigDecimal extrairValorTotal(Document documento) {
-
-        Element vNF = (Element) documento
-                .getElementsByTagName("vNF")
-                .item(0);
-
-        return new BigDecimal(vNF.getTextContent());
+        try {
+            NodeList vNFList = documento.getElementsByTagName("vNF");
+            if (vNFList.getLength() == 0) {
+                throw new XmlParsingException("Elemento 'vNF' (valor total) não encontrado.");
+            }
+            return new BigDecimal(vNFList.item(0).getTextContent());
+        } catch (XmlParsingException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new XmlParsingException("Erro ao extrair valor total da nota: " + e.getMessage(), e);
+        }
     }
 
     public int contarItens(Document documento) {
-
-        return documento
-                .getElementsByTagName("det")
-                .getLength();
+        return documento.getElementsByTagName("det").getLength();
     }
 
     public List<ItemNFe> extrairItens(Document documento) {
+        try {
+            NodeList itens = documento.getElementsByTagName("det");
+            List<ItemNFe> listaItens = new ArrayList<>();
 
-        NodeList itens = documento.getElementsByTagName("det");
+            for (int i = 0; i < itens.getLength(); i++) {
+                Element item = (Element) itens.item(i);
+                Element produtoElement = (Element) item.getElementsByTagName("prod").item(0);
 
-        List<ItemNFe> listaItens = new ArrayList<>();
+                String codigo = produtoElement.getElementsByTagName("cProd").item(0).getTextContent();
+                String nome = produtoElement.getElementsByTagName("xProd").item(0).getTextContent();
+                String quantidadeStr = produtoElement.getElementsByTagName("qCom").item(0).getTextContent();
+                String precoUnitarioStr = produtoElement.getElementsByTagName("vUnCom").item(0).getTextContent();
+                String valorTotalStr = produtoElement.getElementsByTagName("vProd").item(0).getTextContent();
 
-        for (int i = 0; i < itens.getLength(); i++) {
+                Produto produto = new Produto(codigo, nome);
+                BigDecimal quantidade = new BigDecimal(quantidadeStr);
+                BigDecimal precoUnitario = new BigDecimal(precoUnitarioStr);
+                BigDecimal valorTotal = new BigDecimal(valorTotalStr);
 
-            Element item = (Element) itens.item(i);
+                ItemNFe itemNFe = new ItemNFe(produto, quantidade, precoUnitario, valorTotal);
+                listaItens.add(itemNFe);
+            }
 
-            Element produtoElement = (Element) item
-                    .getElementsByTagName("prod")
-                    .item(0);
-
-            Element codigo = (Element) produtoElement
-                    .getElementsByTagName("cProd")
-                    .item(0);
-
-            Element nome = (Element) produtoElement
-                    .getElementsByTagName("xProd")
-                    .item(0);
-
-            Element quantidade = (Element) produtoElement
-                    .getElementsByTagName("qCom")
-                    .item(0);
-
-            Element precoUnitario = (Element) produtoElement
-                    .getElementsByTagName("vUnCom")
-                    .item(0);
-
-            Element valorTotal = (Element) produtoElement
-                    .getElementsByTagName("vProd")
-                    .item(0);
-
-            Produto produto = new Produto(
-                    codigo.getTextContent(),
-                    nome.getTextContent());
-
-            BigDecimal quantidadeValor = new BigDecimal(
-                    quantidade.getTextContent());
-
-            BigDecimal precoUnitarioValor = new BigDecimal(
-                    precoUnitario.getTextContent());
-
-            BigDecimal valorTotalValor = new BigDecimal(
-                    valorTotal.getTextContent());
-
-            ItemNFe itemNFe = new ItemNFe(
-                    produto,
-                    quantidadeValor,
-                    precoUnitarioValor,
-                    valorTotalValor);
-
-            listaItens.add(itemNFe);
+            return listaItens;
+        } catch (Exception e) {
+            throw new XmlParsingException("Erro ao extrair itens do XML da NF-e: " + e.getMessage(), e);
         }
-
-        return listaItens;
     }
 
     public Empresa extrairEmpresa(Document documento) {
-
         String cnpj = extrairCnpj(documento);
         String nome = extrairNomeEmpresa(documento);
-
         return new Empresa(cnpj, nome);
     }
 
     public NFe extrairNFe(Document documento) {
-
         String chaveAcesso = extrairChaveAcesso(documento);
         String numero = extrairNumero(documento);
         OffsetDateTime data = extrairData(documento);
