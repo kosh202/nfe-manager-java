@@ -1,12 +1,9 @@
 package br.com.nfe.manager;
 
-import br.com.nfe.manager.parser.NFeXmlParser;
 import br.com.nfe.manager.model.ItemNFe;
+import br.com.nfe.manager.model.NFe;
+import br.com.nfe.manager.parser.NFeXmlParser;
 
-import java.math.BigDecimal;
-import java.time.OffsetDateTime;
-
-import java.util.List;
 import org.w3c.dom.Document;
 
 public class Main {
@@ -18,18 +15,17 @@ public class Main {
         Document documento = parser.carregarXml(
                 "src/main/resources/xml/nfe-exemplo-01.xml");
 
-        String chave = parser.extrairChaveAcesso(documento);
-        String numero = parser.extrairNumero(documento);
-        String cnpj = parser.extrairCnpj(documento);
-        String nomeEmpresa = parser.extrairNomeEmpresa(documento);
-        OffsetDateTime data = parser.extrairData(documento);
-        BigDecimal valorTotal = parser.extrairValorTotal(documento);
+        NFe nfe = parser.extrairNFe(documento);
 
-        int quantidadeItens = parser.contarItens(documento);
+        System.out.println("Chave de acesso: " + nfe.getChaveAcesso());
+        System.out.println("Número da NF-e: " + nfe.getNumero());
+        System.out.println("CNPJ: " + nfe.getEmpresa().getCnpj());
+        System.out.println("Empresa: " + nfe.getEmpresa().getNome());
+        System.out.println("Data: " + nfe.getData());
+        System.out.println("Valor total: " + nfe.getValorTotal());
+        System.out.println("Quantidade de itens: " + nfe.getItens().size());
 
-        List<ItemNFe> itens = parser.extrairItens(documento);
-
-        for (ItemNFe item : itens) {
+        for (ItemNFe item : nfe.getItens()) {
 
             System.out.println("Código: " + item.getProduto().getCodigo());
             System.out.println("Nome: " + item.getProduto().getNome());
@@ -37,12 +33,5 @@ public class Main {
             System.out.println("Preço unitário: " + item.getPrecoUnitario());
             System.out.println("Valor total: " + item.getValorTotal());
         }
-        System.out.println("Chave de acesso: " + chave);
-        System.out.println("Número da NF-e: " + numero);
-        System.out.println("CNPJ: " + cnpj);
-        System.out.println("Empresa: " + nomeEmpresa);
-        System.out.println("Data: " + data);
-        System.out.println("Valor total: " + valorTotal);
-        System.out.println("Quantidade de itens: " + quantidadeItens);
     }
 }

@@ -4,7 +4,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import br.com.nfe.manager.model.Empresa;
 import br.com.nfe.manager.model.ItemNFe;
+import br.com.nfe.manager.model.NFe;
 import br.com.nfe.manager.model.Produto;
 
 import java.io.File;
@@ -156,5 +158,31 @@ public class NFeXmlParser {
         }
 
         return listaItens;
+    }
+
+    public Empresa extrairEmpresa(Document documento) {
+
+        String cnpj = extrairCnpj(documento);
+        String nome = extrairNomeEmpresa(documento);
+
+        return new Empresa(cnpj, nome);
+    }
+
+    public NFe extrairNFe(Document documento) {
+
+        String chaveAcesso = extrairChaveAcesso(documento);
+        String numero = extrairNumero(documento);
+        OffsetDateTime data = extrairData(documento);
+        Empresa empresa = extrairEmpresa(documento);
+        BigDecimal valorTotal = extrairValorTotal(documento);
+        List<ItemNFe> itens = extrairItens(documento);
+
+        return new NFe(
+                chaveAcesso,
+                numero,
+                data,
+                empresa,
+                valorTotal,
+                itens);
     }
 }
