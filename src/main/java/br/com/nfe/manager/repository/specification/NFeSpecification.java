@@ -13,6 +13,7 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Monta predicados opcionais para a consulta paginada de NF-e. */
 public class NFeSpecification {
 
     public static Specification<NFe> comFiltros(NFeFilterDTO filter) {
@@ -72,7 +73,7 @@ public class NFeSpecification {
                 }
             }
 
-            // Evita registros duplicados no resultado devido aos joins de itens
+            // Joins com itens podem repetir a mesma NF-e; distinct preserva uma linha por nota.
             query.distinct(true);
 
             return cb.and(predicates.toArray(new Predicate[0]));

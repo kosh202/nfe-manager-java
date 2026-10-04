@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+/** Mantém empresas indexadas pelo CNPJ e reutiliza registros existentes. */
 @Service
 public class EmpresaService {
 
@@ -29,6 +30,7 @@ public class EmpresaService {
 
     @Transactional
     public Empresa obterOuCriar(String cnpj, String nome) {
+        // O nome é atualizado quando o XML mais recente trouxer uma informação diferente.
         return empresaRepository.findByCnpj(cnpj)
                 .map(empresaExistente -> {
                     if (nome != null && !nome.equals(empresaExistente.getNome())) {

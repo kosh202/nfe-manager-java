@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/** Endpoints de consulta do catálogo de produtos das NF-e. */
 @RestController
 @RequestMapping("/api/produtos")
 public class ProdutoController {
@@ -22,6 +23,7 @@ public class ProdutoController {
 
     @GetMapping
     public ResponseEntity<List<ProdutoDTO>> listarTodos() {
+        // O mapeamento limita a resposta aos campos públicos do produto.
         List<Produto> produtos = produtoService.listarTodos();
         List<ProdutoDTO> dtos = produtos.stream()
                 .map(ProdutoDTO::fromEntity)

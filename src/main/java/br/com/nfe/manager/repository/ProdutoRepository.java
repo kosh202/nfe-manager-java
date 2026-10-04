@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
+/** Operações de persistência para produtos identificados por código. */
 public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     Optional<Produto> findByCodigo(String codigo);
     boolean existsByCodigo(String codigo);

@@ -1,5 +1,6 @@
 package br.com.nfe.manager.exception;
 
+/** Indica que a chave de acesso já foi importada anteriormente. */
 public class NFeDuplicadaException extends RuntimeException {
 
     private final String chaveAcesso;

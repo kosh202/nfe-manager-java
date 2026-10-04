@@ -10,6 +10,7 @@ import java.time.OffsetDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/** Centraliza o formato das respostas de erro e seus respectivos status HTTP. */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -39,6 +40,7 @@ public class GlobalExceptionHandler {
     }
 
     private ResponseEntity<Map<String, Object>> buildResponse(HttpStatus status, String error, String message, String path) {
+        // Todas as falhas da API seguem o mesmo contrato, facilitando o consumo pelo cliente.
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", OffsetDateTime.now().toString());
         body.put("status", status.value());

@@ -6,6 +6,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Entidade principal: uma NF-e emitida por uma empresa e composta por itens. */
 @Entity
 @Table(name = "nfe", indexes = {
     @Index(name = "idx_nfe_chave_acesso", columnList = "chave_acesso", unique = true)
@@ -57,6 +58,7 @@ public class NFe {
     }
 
     public void addItem(ItemNFe item) {
+        // O lado proprietário do relacionamento é atualizado junto com a coleção.
         itens.add(item);
         item.setNfe(this);
     }

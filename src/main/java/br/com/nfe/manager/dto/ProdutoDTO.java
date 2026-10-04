@@ -2,6 +2,7 @@ package br.com.nfe.manager.dto;
 
 import br.com.nfe.manager.model.Produto;
 
+/** Representação pública de um produto para as respostas da API. */
 public class ProdutoDTO {
 
     private Long id;
@@ -18,6 +19,7 @@ public class ProdutoDTO {
     }
 
     public static ProdutoDTO fromEntity(Produto produto) {
+        // Retorna null para preservar a ausência do relacionamento na origem.
         if (produto == null) return null;
         return new ProdutoDTO(produto.getId(), produto.getCodigo(), produto.getNome());
     }

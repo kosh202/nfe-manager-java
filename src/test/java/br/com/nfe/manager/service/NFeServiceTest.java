@@ -92,6 +92,7 @@ class NFeServiceTest {
     @Test
     @DisplayName("Deve lançar NFeDuplicadaException ao tentar importar nota fiscal já cadastrada")
     void deveLancarExcecaoParaNotaDuplicada() {
+        // A duplicidade deve falhar antes de persistir uma nova NF-e.
         when(nfeRepository.existsByChaveAcesso("43211105730928000145650010000002401717268120")).thenReturn(true);
 
         assertThrows(NFeDuplicadaException.class, () -> nfeService.importarXml(SAMPLE_XML));

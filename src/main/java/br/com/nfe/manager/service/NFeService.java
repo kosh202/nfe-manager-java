@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
 
+/** Coordena a importação, normalização e persistência de uma NF-e. */
 @Service
 public class NFeService {
 
@@ -48,6 +49,7 @@ public class NFeService {
     }
 
     private NFe processarEPersistirNFe(Document document, String xmlOriginal) {
+        // A chave é validada antes da criação de empresas, produtos ou itens.
         String chaveAcesso = xmlParser.extrairChaveAcesso(document);
 
         // 1. Verificação de Nota Fiscal Duplicada
@@ -64,7 +66,7 @@ public class NFeService {
                 nfeParsed.getEmpresa().getNome()
         );
 
-        // 4. Montagem do objeto NFe com relacionamentos persistidos
+        // 4. Montagem do objeto NFe com relacionamentos persistidos.
         NFe nfeEntity = new NFe(
                 nfeParsed.getChaveAcesso(),
                 nfeParsed.getNumero(),
@@ -74,7 +76,8 @@ public class NFeService {
                 null
         );
 
-        // 5. Associação dos produtos e itens de nota
+        // 5. Associação dos produtos e itens de nota. addItem mantém os dois lados
+        // do relacionamento JPA sincronizados.
         for (ItemNFe itemParsed : nfeParsed.getItens()) {
             Produto produtoPersistido = produtoService.obterOuCriar(
                     itemParsed.getProduto().getCodigo(),

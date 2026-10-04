@@ -63,7 +63,8 @@ class NFeSpecificationTest {
         nfe2.addItem(new ItemNFe(produto2, new BigDecimal("5"), new BigDecimal("50.00"), new BigDecimal("250.00")));
         nfeRepository.save(nfe2);
 
-        // NF-e 3: Alfa, R$ 500.00, Produto A + Produto B, Data 2023-03-20
+        // NF-e 3: Alfa, R$ 500.00, Produto A + Produto B, Data 2023-03-20.
+        // Dois itens no mesmo documento também exercitam o distinct da specification.
         NFe nfe3 = new NFe("CHAVE-3", "003", OffsetDateTime.parse("2023-03-20T16:00:00-03:00"), empresa1, new BigDecimal("500.00"), null);
         nfe3.addItem(new ItemNFe(produto1, new BigDecimal("5"), new BigDecimal("50.00"), new BigDecimal("250.00")));
         nfe3.addItem(new ItemNFe(produto2, new BigDecimal("5"), new BigDecimal("50.00"), new BigDecimal("250.00")));

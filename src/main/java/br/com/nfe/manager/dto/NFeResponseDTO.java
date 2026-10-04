@@ -7,6 +7,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/** Resposta de consulta de NF-e sem o XML original armazenado como CLOB. */
 public class NFeResponseDTO {
 
     private Long id;
@@ -32,6 +33,7 @@ public class NFeResponseDTO {
 
     public static NFeResponseDTO fromEntity(NFe nfe) {
         if (nfe == null) return null;
+        // Os itens são materializados em DTOs para controlar a forma da resposta JSON.
         List<ItemNFeDTO> itemDTOs = nfe.getItens() != null ?
                 nfe.getItens().stream().map(ItemNFeDTO::fromEntity).collect(Collectors.toList()) : List.of();
 

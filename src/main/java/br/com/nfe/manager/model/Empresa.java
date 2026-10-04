@@ -2,6 +2,7 @@ package br.com.nfe.manager.model;
 
 import jakarta.persistence.*;
 
+/** Empresa emitente identificada exclusivamente pelo CNPJ. */
 @Entity
 @Table(name = "empresa", indexes = {
     @Index(name = "idx_empresa_cnpj", columnList = "cnpj", unique = true)

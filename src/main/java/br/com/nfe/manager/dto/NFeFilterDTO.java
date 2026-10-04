@@ -3,6 +3,7 @@ package br.com.nfe.manager.dto;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
+/** Parâmetros opcionais usados na pesquisa paginada de NF-e. */
 public class NFeFilterDTO {
 
     private String cnpj;

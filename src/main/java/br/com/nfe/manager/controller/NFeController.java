@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
 
+/** Expõe os endpoints de importação, consulta e download de NF-e. */
 @RestController
 @RequestMapping("/api/nfe")
 public class NFeController {
@@ -30,6 +31,7 @@ public class NFeController {
 
     @PostMapping(value = "/importar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ImportResultDTO> importarXmlMultipart(@RequestParam("file") MultipartFile file) {
+        // O upload é convertido para texto UTF-8 antes de ser enviado ao serviço.
         try {
             String xmlContent = new String(file.getBytes(), StandardCharsets.UTF_8);
             NFe nfe = nfeService.importarXml(xmlContent);
@@ -68,6 +70,7 @@ public class NFeController {
             NFeFilterDTO filter,
             @PageableDefault(size = 20, sort = "data") Pageable pageable) {
 
+        // A conversão para DTO impede que entidades JPA sejam expostas diretamente pela API.
         Page<NFe> pagina = nfeService.pesquisar(filter, pageable);
         Page<NFeResponseDTO> paginaDTO = pagina.map(NFeResponseDTO::fromEntity);
         return ResponseEntity.ok(paginaDTO);
@@ -87,6 +90,7 @@ public class NFeController {
 
     @GetMapping(value = "/{id}/xml", produces = MediaType.APPLICATION_XML_VALUE)
     public ResponseEntity<String> obterXmlOriginal(@PathVariable Long id) {
+        // O XML é devolvido como anexo para preservar o conteúdo original da importação.
         String xmlOriginal = nfeService.obterXmlOriginal(id);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"nfe-" + id + ".xml\"")

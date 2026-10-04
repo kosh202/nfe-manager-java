@@ -22,8 +22,10 @@ import java.util.ArrayList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+/** Converte a estrutura XML da NF-e em documentos DOM e objetos do domínio. */
 public class NFeXmlParser {
 
+    /** Cria o parser com DTDs e entidades externas desabilitados para evitar XXE. */
     private DocumentBuilderFactory criarDocumentBuilderFactorySegura() throws Exception {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
@@ -179,6 +181,7 @@ public class NFeXmlParser {
             NodeList itens = documento.getElementsByTagName("det");
             List<ItemNFe> listaItens = new ArrayList<>();
 
+            // Cada elemento det representa um item e contém os dados dentro de prod.
             for (int i = 0; i < itens.getLength(); i++) {
                 Element item = (Element) itens.item(i);
                 Element produtoElement = (Element) item.getElementsByTagName("prod").item(0);
@@ -211,6 +214,7 @@ public class NFeXmlParser {
     }
 
     public NFe extrairNFe(Document documento) {
+        // A chave, emitente, totais e itens são extraídos do mesmo documento já validado.
         String chaveAcesso = extrairChaveAcesso(documento);
         String numero = extrairNumero(documento);
         OffsetDateTime data = extrairData(documento);

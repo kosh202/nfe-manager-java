@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
+/** Operações de persistência e consulta da chave única da NF-e. */
 public interface NFeRepository extends JpaRepository<NFe, Long>, JpaSpecificationExecutor<NFe> {
 
     @Override

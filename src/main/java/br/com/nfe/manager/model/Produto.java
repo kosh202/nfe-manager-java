@@ -2,6 +2,7 @@ package br.com.nfe.manager.model;
 
 import jakarta.persistence.*;
 
+/** Produto referenciado pelos itens das notas fiscais. */
 @Entity
 @Table(name = "produto", indexes = {
     @Index(name = "idx_produto_codigo", columnList = "codigo", unique = true)

@@ -3,6 +3,7 @@ package br.com.nfe.manager.dto;
 import br.com.nfe.manager.model.ItemNFe;
 import java.math.BigDecimal;
 
+/** Dados de um item de NF-e usados no contrato de resposta da API. */
 public class ItemNFeDTO {
 
     private Long id;
@@ -23,6 +24,7 @@ public class ItemNFeDTO {
     }
 
     public static ItemNFeDTO fromEntity(ItemNFe item) {
+        // O produto também é convertido para DTO, evitando entidades aninhadas na resposta.
         if (item == null) return null;
         return new ItemNFeDTO(
                 item.getId(),

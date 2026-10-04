@@ -1,5 +1,6 @@
 package br.com.nfe.manager.dto;
 
+/** Resultado resumido retornado após uma importação bem-sucedida. */
 public class ImportResultDTO {
 
     private String mensagem;

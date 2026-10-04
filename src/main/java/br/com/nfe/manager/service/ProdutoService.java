@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+/** Mantém produtos indexados pelo código informado na NF-e. */
 @Service
 public class ProdutoService {
 
@@ -29,6 +30,7 @@ public class ProdutoService {
 
     @Transactional
     public Produto obterOuCriar(String codigo, String nome) {
+        // Nesta versão, o código do produto é tratado como identificador global.
         return produtoRepository.findByCodigo(codigo)
                 .map(produtoExistente -> {
                     if (nome != null && !nome.equals(produtoExistente.getNome())) {

@@ -84,6 +84,7 @@ class NFeXmlParserTest {
     @Test
     @DisplayName("Deve rejeitar DTD e prevenir ataque XXE ao carregar XML com entidade externa")
     void devePrevenirAtaqueXXE() {
+        // O parser deve rejeitar a declaração antes de tentar resolver a entidade externa.
         assertThrows(XmlParsingException.class, () -> parser.carregarXmlFromString(XXE_ATTACK_XML));
     }
 

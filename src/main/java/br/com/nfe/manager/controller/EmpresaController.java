@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/** Endpoints de consulta das empresas emitentes cadastradas. */
 @RestController
 @RequestMapping("/api/empresas")
 public class EmpresaController {
@@ -22,6 +23,7 @@ public class EmpresaController {
 
     @GetMapping
     public ResponseEntity<List<EmpresaDTO>> listarTodas() {
+        // A API retorna DTOs para não acoplar o consumidor às entidades JPA.
         List<Empresa> empresas = empresaService.listarTodas();
         List<EmpresaDTO> dtos = empresas.stream()
                 .map(EmpresaDTO::fromEntity)

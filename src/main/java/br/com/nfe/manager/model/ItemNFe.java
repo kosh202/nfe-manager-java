@@ -3,6 +3,7 @@ package br.com.nfe.manager.model;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
+/** Associação entre uma NF-e e um produto, com seus valores comerciais. */
 @Entity
 @Table(name = "item_nfe")
 public class ItemNFe {
